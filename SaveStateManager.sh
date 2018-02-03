@@ -1,7 +1,8 @@
-# cyperghosts SavestateManager 1.22
+# cyperghosts SavestateManager 1.23
 # 1.22 Better detection of pathes
+# 1.23 Sanitize pathes
 # ROM will not show in list
-# 28.01.2018
+# 24.01.2018
 # This will let you delete determinated SaveStates of choosen ROMfile
 # This script is best called into RetroPie's User Menu
 # Press 'any' key during loading screen and get access to runcommand menu
@@ -36,10 +37,12 @@ func_get_config() {
 func_get_savepathes() {
     # GET SRM file location
     func_get_config "savefile_directory"
+    [ "${config##*/}" ] && config="$config/"           #Sanitize rom path
     [ "${config:0:1}" = "/" ] && srm_path="$config" || srm_path="$rom_path"
 
     # GET STATE file location
     func_get_config "savestate_directory"
+    [ "${config##*/}" ] && config="$config/"           #Sanitize rom path
     [ "${config:0:1}" = "/" ] && status_path="$config" || status_path="$rom_path" 
 }
 

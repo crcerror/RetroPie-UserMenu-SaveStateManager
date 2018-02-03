@@ -1,5 +1,6 @@
-# cyperghosts SavestateManager 1.2
-# 23.01.2018
+# cyperghosts SavestateManager 1.21 
+# ROM will not show in list
+# 24.01.2018
 # This will let you delete determinated SaveStates of choosen ROMfile
 # This script is best called into RetroPie's User Menu
 # Press 'any' key during loading screen and get access to runcommand menu
@@ -65,17 +66,16 @@ func_get_savepathes
 # Determinine number of Statussavegames!
 # Is Array valid? (Maybe here some code magic can help me?)
 
-    status_array=("$status_path/$rom_no_ext."*)        #Build Array
+    z=("$status_path/$rom_no_ext.state"*)
+    [ "${z#*.state}" != "*" ] && status_array+=("${z[@]}")
+    [ -f "$srm_path/$rom_no_ext.srm" ] && status_array+=("$srm_path/$rom_no_ext.srm")    
+    unset z
 
-    if [ "$srm_path" != "$status_path" ]; then         #Build Array SRM only
-        z=("$srm_path/$rom_no_ext."*)
-        [ "${z#*.}" != "*" ] && status_array+=("${z[@]}")
-    fi
 
     idx=${#status_array[@]}                             #Get Array size
 
 # Array validity check!
-    [ $idx = 1 ] && dialog --infobox "No Savestate found!" 0 0 && sleep 3 && exit
+    [ $idx = 0 ] && dialog --infobox "No Savestate found!" 0 0 && sleep 3 && exit
 
 # Building Choices Array for options
 # Means "counter Text counter Text"

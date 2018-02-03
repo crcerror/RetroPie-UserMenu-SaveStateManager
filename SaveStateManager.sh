@@ -1,20 +1,21 @@
-# Savestate Manager 1.0
+# cyperghosts SavestateManager 1.2
+# 23.01.2018
 # This will let you delete determinated SaveStates of choosen ROMfile
 # This script is best called into RetroPie's User Menu
 # Press 'any' key during loading screen and get access to runcommand menu
 # There choose 'User Menu'
 #
-# by cyperghost
+# by cyperghost for retropie.org.uk
 #
 # rom=$3, is first parameter
 # system=$1, is second parameter
 # So for exp. ./savestate.sh  $1 $3 or ./savestate.sh $1 all
 
-[ -z $2 ] && echo "SaveState Check: Please parse system parameter! Error!" >&2 && exit 1
-[ -z $1 ] && echo "SaveState Check: Please parse rompath! Error!" >&2 && exit 1
+[ -z "$2" ] && echo "SaveStateManager Check: Please parse system parameter! Error!" >&2 && exit 1
+[ -z "$1" ] && echo "SaveStateManager Check: Please parse rompath! Error!" >&2 && exit 1
 
     rom="$1"
-    sytem="$2"
+    system="$2"
     rom_name="$(basename "$rom")"
     rom_path="$(dirname "$rom")"
     rom_no_ext="${rom_name%.*}"
@@ -42,10 +43,20 @@ func_get_savepathes() {
 
 func_save_del() {
     # Delete Save games
-    if [ "$1" = "$rom_name" ]; then
-        dialog --infobox "This a ROM file\nI don't delete this!" 0 0 && sleep 5
-     else
-        echo "File delteted"
+    # Is Array value already empty? If Yes then return
+    [ -z "${status_array[$2-1]}" ] && return
+
+    # Is this entry is a ROM
+    # If yes then display a Info, if no erase file and erase all Arrays with
+    # related entry
+
+    if [ "$1" = "$rom" ]; then
+        dialog --cancel-label "Launch ROM" \
+               --pause "This is a ROM file! I don't delete this!" 8 45 5
+            [ $? = 1 ] && exit 2
+      else
+        dialog --yesno "I will delete following SaveState after you choose YES\n\n$1\n" 10 60
+            [ $? = 0 ] && rm -f "$1" && status_array[$2-1]="" && options[$2*2-1]=""
     fi
 }
 
@@ -53,27 +64,50 @@ func_get_savepathes
 
 # Determinine number of Statussavegames!
 # Is Array valid? (Maybe here some code magic can help me?)
-    status_array=("$status_path/$rom_no_ext."*)         #Build Array
+
+    status_array=("$status_path/$rom_no_ext."*)        #Build Array
+
+    if [ "$srm_path" != "$status_path" ]; then         #Build Array SRM only
+        z=("$srm_path/$rom_no_ext."*)
+        [ "${z#*.}" != "*" ] && status_array+=("${z[@]}")
+    fi
+
     idx=${#status_array[@]}                             #Get Array size
 
 # Array validity check!
-    [ $idx = 1 ] && dialog --infobox "No Savestate found" 0 0 && sleep 3 && exit
+    [ $idx = 1 ] && dialog --infobox "No Savestate found!" 0 0 && sleep 3 && exit
 
 # Building Choices Array for options
 # Means "counter Text counter Text"
     for (( z=0; z<$idx; z++ ))
         do
-            options[$z*3]=$(( $z + 1 ))
-            options[$z*3+1]="${status_array[$z]##*/}"
-            options[$z*3+2]="off"
+            options+=($(( $z + 1 )))
+            options+=("${status_array[$z]##*/}")
         done
 
-cmd=(dialog --separate-output --checklist "Select options:" 22 76 16)
+# Create Entry for several Exit options at last positions
+    options+=("L")
+    options+=("Launch ROM")
+    options+=("R")
+    options+=("Exit to RunCommand")
+    options+=("X")
+    options+=("Exit to EmulationStation")
+
+# Build Dialog output of SaveState selection
+while true
+do
+
+cmd=(dialog --backtitle "cyperghosts - SaveStateManager" \
+            --title "ROM: ${rom_no_ext%%(*}" \
+            --cancel-label "Launch ROM" \
+            --menu "Select SaveState to delete:" 18 65 16)
 choices=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
 
-for choice in $choices
-do
-    case $choice in
-        *) func_save_del "${options[$choice*3-2]}" && sleep 1
+    case $choices in
+        X) exit 1 ;;
+        L) exit 2 ;;
+        R) exit 0 ;;
+        [1-999]) func_save_del "${status_array[$choices-1]}" "$choices" ;;
+        *) exit 2 ;;
     esac
 done

@@ -1,4 +1,4 @@
-# cyperghosts SavestateManager 1.30
+# cyperghosts SavestateManager 1.31
 #
 # 22.01.18 - 1.00 Never released, used selection list
 # 22.01.18 - 1.10 Introduced ROM start screen, use menu list
@@ -6,6 +6,7 @@
 # 24.01.18 - 1.21 ROM will not show in list, this is version just detects state and SRM files, BETA released
 # 24.01.18 - 1.25 Better name handling in deletion window and some code cleanup, Internal testings, never released
 # 28.01.18 - 1.30 Including all testing of 1.2 branch, alle errors seems to be fixed, Try to load runcommand-onend.sh
+# 29.01.18 - 1.31 Bug fixing, resolve homepath!
 
 # BETA
 # 1.22 Improved handling of pathes /
@@ -40,16 +41,19 @@ func_get_config() {
     config="$(grep -Po "(?<=^$1 = ).*" "$config_file")"
     config="${config%\"}"
     config="${config#\"}"
+    [ "${config:0:1}" = "~" ] && config="${config#??}" && config=~/"$config"
 }
 
 func_get_savepathes() {
     # GET SRM file location
     func_get_config "savefile_directory"
-    [ "${config^^}" = "DEFAULT" ] && srm_path="$rom_path" || srm_path="$config"
+    [ -z "${config##*/}" ] && config="${config%?}"          # Remove last / character from pathes
+    [ "${config:0:1}" = "/" ]  && srm_path="$config" || srm_path="$rom_path"
 
     # GET STATE file location
     func_get_config "savestate_directory"
-    [ "${config^^}" = "DEFAULT" ] && status_path="$rom_path" || status_path="$config"
+    [ -z "${config##*/}" ] && config="${config%?}"          # Remove last / character from pathes
+    [ "${config:0:1}" = "/" ] && status_path="$config" || status_path="$rom_path"
 }
 
 func_save_del() {
@@ -99,7 +103,7 @@ func_get_savepathes
 while true
 do
 
-    cmd=(dialog --backtitle "cyperghosts SaveStateManager v1.30" \
+    cmd=(dialog --backtitle "cyperghosts SaveStateManager v1.31" \
                 --title "ROM: ${rom_no_ext%% (*}.${rom_name##*.}" \
                 --cancel-label "Launch ROM" \
                 --menu "Select SaveState to delete:" 18 65 16)

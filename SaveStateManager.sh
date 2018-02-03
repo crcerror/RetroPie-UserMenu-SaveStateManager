@@ -1,10 +1,15 @@
-# cyperghosts SavestateManager 1.25 
+# cyperghosts SavestateManager 1.30
 #
 # 22.01.18 - 1.00 Never released, used selection list
 # 22.01.18 - 1.10 Introduced ROM start screen, use menu list
 # 23.01.18 - 1.20 Handling of arrays improved! Better detection of SRM files
-# 24.01.18 - 1.21 ROM will not show in list, this is version just detects state and SRM files 
-# 24.01.18 - 1.25 Better name handling in deletion window and some code cleanup
+# 24.01.18 - 1.21 ROM will not show in list, this is version just detects state and SRM files, BETA released
+# 24.01.18 - 1.25 Better name handling in deletion window and some code cleanup, Internal testings, never released
+# 28.01.18 - 1.30 Including all testing of 1.2 branch, alle errors seems to be fixed, Try to load runcommand-onend.sh
+
+# BETA
+# 1.22 Improved handling of pathes /
+# 1.23 Sanitize pathes, never released
 # 
 # This will let you delete determinated SaveStates of choosen ROMfile
 # This script is best called into RetroPie's User Menu
@@ -94,14 +99,14 @@ func_get_savepathes
 while true
 do
 
-    cmd=(dialog --backtitle "cyperghosts SaveStateManager v1.25" \
+    cmd=(dialog --backtitle "cyperghosts SaveStateManager v1.30" \
                 --title "ROM: ${rom_no_ext%% (*}.${rom_name##*.}" \
                 --cancel-label "Launch ROM" \
                 --menu "Select SaveState to delete:" 18 65 16)
     choices=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
 
     case $choices in
-        X) exit 1 ;;
+        X) /opt/retropie/configs/all/runcommand-onend.sh && exit 1 ;;
         L) exit 2 ;;
         R) exit 0 ;;
         [1-999]) func_save_del "${status_array[$choices-1]}" "$choices" ;;

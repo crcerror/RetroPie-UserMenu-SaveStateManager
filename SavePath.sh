@@ -1,5 +1,5 @@
 #!/bin/bash
-# Save Path v1.1
+# Save Path v1.11
 # Change SavePath of SRM and STATE-files
 # 29.01.2018
 #
@@ -13,6 +13,8 @@
 #
 # I differ between SRM and STATE-path if SRM parameter (Parameter 3) is NOT left empty
 # If parameter 3 is missing then SRM will be in the same location as STATE.
+#
+# Errors are logged to /dev/shm/runcommand.log
 #
 # Example 1: SavePath.sh all "/home/pi/RetroPie/savegames/$1" with a NES ROM
 # results: SRM and STATE savepath '/home/pi/RetroPie/savegames/nes'

@@ -80,7 +80,7 @@ case "$EMULATOR" in
             elif [[ $run_command == "end" && -f  "$ROM_PATH/$ROM_NO_EXT.$ext" ]]
             then
                 mv "$ROM_PATH/$ROM_NO_EXT.$ext" "$savefile_directory"
-                echo "SavePathFix OKAY: Moved via runcommand-on$run_command.sh "$ROM_PATH/$ROM_NO_EXT.$ext to $savefile_directory" >&2
+                echo "SavePathFix OKAY: Moved via runcommand-on$run_command.sh $ROM_PATH/$ROM_NO_EXT.$ext to $savefile_directory" >&2
             else
                 [[ -z $run_command ]] && echo "SavePathFix Critical: Script was not initiated via runcommand.sh call" >&2 && break
                 echo "SavePathFix NoCEr: $ROM_NO_EXT.$ext not found! This is no critical error" >&2

@@ -106,7 +106,7 @@ function extended_dialog()
                    8 "Move to state.auto"
                   )
 
-    cmd=(dialog --backtitle "BOAH" --title "SaveState: $(basename "$file")" \
+    cmd=(dialog --backtitle "$dl_backtitle" --title "SaveState: $(basename "$file")" \
                  --no-tags --defaultno \
                  --menu "There are some items available. Which one to delete?" 14 65 16)
     choices=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
@@ -232,6 +232,11 @@ done
 # Here you could unset the first array
 #unset saves_array
 
+#Init Joy2Key with special characters
+sudo pkill -f joy2key
+sleep 0.5 #Debounce
+joy2key_init
+
 # Selection Dialog
 # tags are filenames, --separate-output is for adding newline to output
 cmd=(dialog --backtitle "$dl_backtitle" --title "ROM: $rom_name" \
@@ -252,8 +257,6 @@ case $? in
         else
             dialog_box msgbox " Error! " "No SaveState selected!" 0 0
         fi
-
-
     ;;
 
 
